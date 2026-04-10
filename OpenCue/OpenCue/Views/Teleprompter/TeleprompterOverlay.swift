@@ -2,28 +2,60 @@ import SwiftUI
 
 struct TeleprompterOverlay: View {
     @Environment(AppSettings.self) private var settings
-
-    private let placeholderText = """
-    This is **test teleprompter** text.
-
-    OpenCue displays your *script* right here in the notch area.
-
-
-    The text will eventually scroll automatically when you hit play.
-    """
+    @Environment(ScrollEngine.self) private var scrollEngine
 
     var body: some View {
-        ScrollView {
+        GeometryReader { proxy in
+            ZStack {
+                Color.white.opacity(settings.opacity)
+
+                if scrollEngine.state == .countdown {
+                    CountdownView(number: scrollEngine.currentCountdown)
+                } else {
+                    scrollingTextView
+                }
+            }
+            .clipped()
+            .onAppear {
+                scrollEngine.viewportHeight = proxy.size.height
+                scrollEngine.clampOffsetToContent()
+            }
+            .onChange(of: proxy.size.height) { _, newHeight in
+                scrollEngine.viewportHeight = newHeight
+                scrollEngine.clampOffsetToContent()
+            }
+        }
+        .frame(width: settings.overlayWidthCGFloat, height: settings.overlayHeightCGFloat)
+    }
+
+    private var scrollingTextView: some View {
+        VStack(spacing: 0) {
             renderedText
-                .font(.system(size: settings.fontSize))
+                .font(.system(size: settings.fontSizeCGFloat))
                 .foregroundColor(settings.textColor)
                 .multilineTextAlignment(settings.swiftUITextAlignment)
-                .padding(12)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
                 .frame(maxWidth: .infinity, alignment: settings.contentFrameAlignment)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear
+                            .onAppear {
+                                scrollEngine.textHeight = geo.size.height
+                                scrollEngine.clampOffsetToContent()
+                            }
+                            .onChange(of: geo.size.height) { _, newHeight in
+                                scrollEngine.textHeight = newHeight
+                                scrollEngine.clampOffsetToContent()
+                            }
+                    }
+                )
+
+            Spacer(minLength: 0)
         }
-        .scrollDisabled(true)
-        .frame(width: settings.overlayWidth, height: settings.overlayHeight)
-        .background(Color.white.opacity(settings.opacity))
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .offset(y: -scrollEngine.offset)
+        .opacity(scrollEngine.state == .idle ? 0.9 : 1)
     }
 
     @ViewBuilder
@@ -42,9 +74,11 @@ struct TeleprompterOverlay: View {
     }
 
     private var displayText: String {
-        guard settings.collapseEmptyLines else { return placeholderText }
+        let baseText = scrollEngine.textContent.isEmpty ? "Select a note to begin." : scrollEngine.textContent
 
-        return placeholderText.replacingOccurrences(
+        guard settings.collapseEmptyLines else { return baseText }
+
+        return baseText.replacingOccurrences(
             of: #"\n{2,}"#,
             with: "\n",
             options: .regularExpression

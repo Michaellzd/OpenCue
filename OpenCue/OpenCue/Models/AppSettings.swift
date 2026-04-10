@@ -55,9 +55,9 @@ final class AppSettings {
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
-        fontSize = userDefaults.object(forKey: Keys.fontSize) as? Double ?? Constants.defaultFontSize
-        overlayWidth = userDefaults.object(forKey: Keys.overlayWidth) as? Double ?? Constants.defaultOverlayWidth
-        overlayHeight = userDefaults.object(forKey: Keys.overlayHeight) as? Double ?? Constants.defaultOverlayHeight
+        fontSize = userDefaults.object(forKey: Keys.fontSize) as? Double ?? Double(Constants.defaultFontSize)
+        overlayWidth = userDefaults.object(forKey: Keys.overlayWidth) as? Double ?? Double(Constants.defaultOverlayWidth)
+        overlayHeight = userDefaults.object(forKey: Keys.overlayHeight) as? Double ?? Double(Constants.defaultOverlayHeight)
         opacity = userDefaults.object(forKey: Keys.opacity) as? Double ?? Constants.defaultOpacity
         textAlignment = userDefaults.string(forKey: Keys.textAlignment) ?? "center"
         richTextEnabled = userDefaults.object(forKey: Keys.richTextEnabled) as? Bool ?? true
@@ -82,6 +82,18 @@ final class AppSettings {
         set {
             textColorData = Self.archivedColor(NSColor(newValue))
         }
+    }
+
+    var fontSizeCGFloat: CGFloat {
+        CGFloat(fontSize)
+    }
+
+    var overlayWidthCGFloat: CGFloat {
+        CGFloat(overlayWidth)
+    }
+
+    var overlayHeightCGFloat: CGFloat {
+        CGFloat(overlayHeight)
     }
 
     var swiftUITextAlignment: TextAlignment {

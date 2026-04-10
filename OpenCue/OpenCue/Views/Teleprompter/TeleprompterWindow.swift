@@ -7,11 +7,11 @@ final class TeleprompterWindowController: NSObject {
     private weak var settings: AppSettings?
 
     /// Create and show the teleprompter panel positioned over the notch.
-    func setup(with settings: AppSettings) {
+    func setup(scrollEngine: ScrollEngine, settings: AppSettings) {
         self.settings = settings
 
-        let panelWidth = settings.overlayWidth
-        let panelHeight = settings.overlayHeight
+        let panelWidth = settings.overlayWidthCGFloat
+        let panelHeight = settings.overlayHeightCGFloat
 
         let panel = NSPanel(
             contentRect: NSRect(x: 0, y: 0, width: panelWidth, height: panelHeight),
@@ -37,12 +37,16 @@ final class TeleprompterWindowController: NSObject {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
 
         // Transparent / no chrome
-        panel.backgroundColor = NSColor.white.withAlphaComponent(settings.opacity)
+        panel.backgroundColor = .clear
         panel.isOpaque = false
         panel.hasShadow = false
 
         // Host the SwiftUI overlay inside the panel
-        let hostingView = NSHostingView(rootView: TeleprompterOverlay().environment(settings))
+        let hostingView = NSHostingView(
+            rootView: TeleprompterOverlay()
+                .environment(settings)
+                .environment(scrollEngine)
+        )
         panel.contentView = hostingView
 
         // Position over the notch
@@ -90,11 +94,9 @@ final class TeleprompterWindowController: NSObject {
     private func applySettings() {
         guard let panel, let settings else { return }
 
-        panel.backgroundColor = NSColor.white.withAlphaComponent(settings.opacity)
-
         let newFrame = frameForPanel(
-            width: settings.overlayWidth,
-            height: settings.overlayHeight
+            width: settings.overlayWidthCGFloat,
+            height: settings.overlayHeightCGFloat
         )
         panel.setFrame(newFrame, display: true, animate: false)
     }

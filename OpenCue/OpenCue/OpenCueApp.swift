@@ -9,8 +9,9 @@ struct OpenCueApp: App {
     var body: some Scene {
         WindowGroup {
             MainContentView()
-                .frame(minWidth: 600, minHeight: 400)
                 .environment(appSettings)
+                .environment(appDelegate.scrollEngine)
+                .frame(minWidth: 600, minHeight: 400)
         }
         .defaultSize(width: 800, height: 550)
         .modelContainer(for: [Folder.self, Note.self])
@@ -18,13 +19,49 @@ struct OpenCueApp: App {
 }
 
 @MainActor
-class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    let scrollEngine = ScrollEngine()
+    private let appSettings = AppSettings.shared
     private let teleprompterController = TeleprompterWindowController()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        teleprompterController.setup(with: AppSettings.shared)
+        syncScrollEngineConfiguration()
+        teleprompterController.setup(scrollEngine: scrollEngine, settings: appSettings)
 
-        // TODO: When ScrollEngine.swift is added, bind scrollSpeed, countdownEnabled,
-        // and countdownDuration from AppSettings into the engine here.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppSettingsDidChange(_:)),
+            name: .appSettingsDidChange,
+            object: appSettings
+        )
+    }
+
+    @objc
+    private func handleAppSettingsDidChange(_ notification: Notification) {
+        guard let key = notification.userInfo?[AppSettings.changeKeyUserInfoKey] as? String else {
+            syncScrollEngineConfiguration()
+            return
+        }
+
+        switch key {
+        case AppSettings.Keys.scrollSpeed,
+             AppSettings.Keys.countdownEnabled,
+             AppSettings.Keys.countdownDuration:
+            syncScrollEngineConfiguration()
+        default:
+            break
+        }
+    }
+
+    private func syncScrollEngineConfiguration() {
+        scrollEngine.updateConfiguration(
+            speed: appSettings.scrollSpeed,
+            countdownEnabled: appSettings.countdownEnabled,
+            countdownDuration: appSettings.countdownDuration
+        )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }

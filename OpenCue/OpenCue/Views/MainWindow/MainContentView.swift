@@ -4,7 +4,7 @@ import SwiftData
 struct MainContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AppSettings.self) private var settings
-    @Query(sort: \Folder.sortOrder) private var folders: [Folder]
+    @Environment(ScrollEngine.self) private var scrollEngine
 
     @State private var selectedNoteId: UUID?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
@@ -13,12 +13,13 @@ struct MainContentView: View {
     @AppStorage("opencue.lastOpenedNoteId") private var lastOpenedNoteId: String?
 
     var body: some View {
+        let currentSelectedNote = selectedNote
+
         NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView(selectedNoteId: $selectedNoteId)
                 .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 300)
         } detail: {
-            if let noteId = selectedNoteId,
-               let note = findNote(by: noteId) {
+            if let note = currentSelectedNote {
                 EditorView(note: note)
             } else {
                 emptyState
@@ -26,11 +27,19 @@ struct MainContentView: View {
         }
         .onAppear {
             restoreLastOpenedNote()
+            syncScrollEngineForSelection(selectedNote)
         }
         .onChange(of: selectedNoteId) { _, newValue in
             if let newValue {
                 lastOpenedNoteId = newValue.uuidString
+            } else {
+                lastOpenedNoteId = nil
             }
+
+            syncScrollEngineForSelection(selectedNote)
+        }
+        .onChange(of: currentSelectedNote?.body) { _, newBody in
+            syncScrollEngineForBodyChange(newBody)
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
@@ -41,12 +50,12 @@ struct MainContentView: View {
                 }
                 .help("Settings")
 
-                Button(action: {
-                    // Agent C will wire the play/pause action
-                }) {
-                    Image(systemName: "play.fill")
+                Button(action: togglePlayback) {
+                    Image(systemName: scrollEngine.state == .playing ? "pause.fill" : "play.fill")
+                        .foregroundColor(scrollEngine.state == .playing ? .blue : .primary)
                 }
-                .help("Play")
+                .disabled(currentSelectedNote == nil || currentSelectedNote?.body.isEmpty == true)
+                .help("Play/Pause teleprompter")
             }
         }
         .sheet(isPresented: $showSettings) {
@@ -74,6 +83,11 @@ struct MainContentView: View {
         return try? modelContext.fetch(descriptor).first
     }
 
+    private var selectedNote: Note? {
+        guard let selectedNoteId else { return nil }
+        return findNote(by: selectedNoteId)
+    }
+
     private func restoreLastOpenedNote() {
         guard selectedNoteId == nil,
               let savedId = lastOpenedNoteId,
@@ -82,5 +96,30 @@ struct MainContentView: View {
         if findNote(by: uuid) != nil {
             selectedNoteId = uuid
         }
+    }
+
+    private func togglePlayback() {
+        switch scrollEngine.state {
+        case .idle, .finished:
+            scrollEngine.reset()
+            scrollEngine.play()
+        case .playing:
+            scrollEngine.pause()
+        case .paused:
+            scrollEngine.play()
+        case .countdown:
+            scrollEngine.reset()
+        }
+    }
+
+    private func syncScrollEngineForSelection(_ note: Note?) {
+        scrollEngine.textContent = note?.body ?? ""
+        scrollEngine.reset()
+    }
+
+    private func syncScrollEngineForBodyChange(_ newBody: String?) {
+        guard scrollEngine.state != .playing else { return }
+        scrollEngine.textContent = newBody ?? ""
+        scrollEngine.clampOffsetToContent()
     }
 }

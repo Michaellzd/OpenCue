@@ -22,6 +22,8 @@
 		AA000013 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000013 /* SettingsView.swift */; };
 		AA000014 /* VisualTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000014 /* VisualTab.swift */; };
 		AA000015 /* GeneralTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000015 /* GeneralTab.swift */; };
+		AA000016 /* ScrollEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000016 /* ScrollEngine.swift */; };
+		AA000017 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000017 /* CountdownView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +43,8 @@
 		AB000013 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AB000014 /* VisualTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualTab.swift; sourceTree = "<group>"; };
 		AB000015 /* GeneralTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralTab.swift; sourceTree = "<group>"; };
+		AB000016 /* ScrollEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollEngine.swift; sourceTree = "<group>"; };
+		AB000017 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +94,7 @@
 			children = (
 				AB000004 /* TeleprompterWindow.swift */,
 				AB000005 /* TeleprompterOverlay.swift */,
+				AB000017 /* CountdownView.swift */,
 			);
 			path = Teleprompter;
 			sourceTree = "<group>";
@@ -98,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				AB000003 /* NotchDetector.swift */,
+				AB000016 /* ScrollEngine.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -239,6 +245,8 @@
 				AA000013 /* SettingsView.swift in Sources */,
 				AA000014 /* VisualTab.swift in Sources */,
 				AA000015 /* GeneralTab.swift in Sources */,
+				AA000016 /* ScrollEngine.swift in Sources */,
+				AA000017 /* CountdownView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
