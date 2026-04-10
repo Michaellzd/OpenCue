@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 import SwiftData
 
@@ -15,6 +16,23 @@ struct OpenCueApp: App {
         }
         .defaultSize(width: 800, height: 550)
         .modelContainer(for: [Folder.self, Note.self])
+        .commands {
+            CommandGroup(replacing: .appInfo) {
+                Button("About OpenCue") {
+                    showAboutPanel()
+                }
+            }
+        }
+    }
+
+    private func showAboutPanel() {
+        NSApp.orderFrontStandardAboutPanel(
+            options: [
+                .applicationName: "OpenCue",
+                .applicationVersion: "1.0.0",
+                .version: "1.0.0"
+            ]
+        )
     }
 }
 
@@ -23,10 +41,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let scrollEngine = ScrollEngine()
     private let appSettings = AppSettings.shared
     private let teleprompterController = TeleprompterWindowController()
+    private var hotkeyManager: HotkeyManager?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         syncScrollEngineConfiguration()
-        teleprompterController.setup(scrollEngine: scrollEngine, settings: appSettings)
+        hotkeyManager = HotkeyManager(scrollEngine: scrollEngine, appSettings: appSettings)
+
+        if shouldShowTeleprompterOverlay() {
+            teleprompterController.setup(scrollEngine: scrollEngine, settings: appSettings)
+        }
 
         NotificationCenter.default.addObserver(
             self,
@@ -61,7 +84,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
     }
 
-    deinit {
+    private func shouldShowTeleprompterOverlay() -> Bool {
+        guard NotchDetector.detect() == nil else { return true }
+
+        let alert = NSAlert()
+        alert.messageText = "Notch Required"
+        alert.informativeText = "OpenCue requires a MacBook with a notch display. External monitors are not supported."
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "Quit")
+        alert.addButton(withTitle: "Continue Anyway")
+
+        let response = alert.runModal()
+        if response == .alertFirstButtonReturn {
+            NSApp.terminate(nil)
+        }
+
+        return false
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        hotkeyManager?.teardown()
         NotificationCenter.default.removeObserver(self)
     }
 }

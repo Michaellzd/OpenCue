@@ -14,6 +14,7 @@ struct MainContentView: View {
 
     var body: some View {
         let currentSelectedNote = selectedNote
+        let canPlaySelectedNote = selectedNoteHasPlayableContent
 
         NavigationSplitView(columnVisibility: $columnVisibility) {
             SidebarView(selectedNoteId: $selectedNoteId)
@@ -54,8 +55,8 @@ struct MainContentView: View {
                     Image(systemName: scrollEngine.state == .playing ? "pause.fill" : "play.fill")
                         .foregroundColor(scrollEngine.state == .playing ? .blue : .primary)
                 }
-                .disabled(currentSelectedNote == nil || currentSelectedNote?.body.isEmpty == true)
-                .help("Play/Pause teleprompter")
+                .disabled(!canPlaySelectedNote)
+                .help("Play/Pause teleprompter (Command-Shift-P)")
             }
         }
         .sheet(isPresented: $showSettings) {
@@ -88,6 +89,11 @@ struct MainContentView: View {
         return findNote(by: selectedNoteId)
     }
 
+    private var selectedNoteHasPlayableContent: Bool {
+        guard let body = selectedNote?.body else { return false }
+        return !body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     private func restoreLastOpenedNote() {
         guard selectedNoteId == nil,
               let savedId = lastOpenedNoteId,
@@ -99,27 +105,27 @@ struct MainContentView: View {
     }
 
     private func togglePlayback() {
-        switch scrollEngine.state {
-        case .idle, .finished:
-            scrollEngine.reset()
-            scrollEngine.play()
-        case .playing:
-            scrollEngine.pause()
-        case .paused:
-            scrollEngine.play()
-        case .countdown:
-            scrollEngine.reset()
-        }
+        scrollEngine.togglePlayback()
     }
 
     private func syncScrollEngineForSelection(_ note: Note?) {
+        scrollEngine.hasSelectedNote = note != nil
         scrollEngine.textContent = note?.body ?? ""
         scrollEngine.reset()
     }
 
     private func syncScrollEngineForBodyChange(_ newBody: String?) {
+        let body = newBody ?? ""
+        let hasPlayableContent = !body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+
+        if !hasPlayableContent {
+            scrollEngine.textContent = ""
+            scrollEngine.reset()
+            return
+        }
+
         guard scrollEngine.state != .playing else { return }
-        scrollEngine.textContent = newBody ?? ""
+        scrollEngine.textContent = body
         scrollEngine.clampOffsetToContent()
     }
 }

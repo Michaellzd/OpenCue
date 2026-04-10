@@ -15,6 +15,7 @@ final class ScrollEngine {
     var state: ScrollState = .idle
     var offset: CGFloat = 0
     var currentCountdown: Int = Constants.defaultCountdownDuration
+    var hasSelectedNote: Bool = false
 
     var speed: Double = Constants.defaultScrollSpeed
     var countdownEnabled: Bool = true
@@ -35,13 +36,17 @@ final class ScrollEngine {
         max(textHeight - viewportHeight, 0)
     }
 
+    var hasPlayableText: Bool {
+        !textContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
     deinit {
         scrollTimer?.invalidate()
         countdownTimer?.invalidate()
     }
 
     func play() {
-        guard !textContent.isEmpty else { return }
+        guard hasPlayableText else { return }
 
         switch state {
         case .playing, .countdown:
@@ -78,6 +83,20 @@ final class ScrollEngine {
 
     func setSpeed(_ newSpeed: Double) {
         speed = min(max(newSpeed, 1), 10)
+    }
+
+    func togglePlayback() {
+        switch state {
+        case .idle, .finished:
+            reset()
+            play()
+        case .playing:
+            pause()
+        case .paused:
+            play()
+        case .countdown:
+            reset()
+        }
     }
 
     func updateConfiguration(speed: Double, countdownEnabled: Bool, countdownDuration: Int) {

@@ -56,6 +56,8 @@ struct SidebarView: View {
                 }
             }
             .listStyle(.sidebar)
+            .animation(.default, value: selectedNoteId)
+            .animation(.default, value: folders.map(\.sortOrder))
 
             Divider()
 
@@ -117,6 +119,10 @@ struct SidebarView: View {
                 folderToDelete = folder
                 showDeleteConfirmation = true
             }
+        }
+        .draggable(folder.id.uuidString)
+        .dropDestination(for: String.self) { items, _ in
+            reorderFolders(items, before: folder.id)
         }
         .onAppear {
             // Auto-expand folders on first appearance
@@ -234,5 +240,31 @@ struct SidebarView: View {
             selectedNoteId = nil
         }
         modelContext.delete(note)
+    }
+
+    private func reorderFolders(_ items: [String], before targetFolderId: UUID) -> Bool {
+        guard let draggedFolderId = items.compactMap(UUID.init(uuidString:)).first else {
+            return false
+        }
+
+        let sortedFolders = folders.sorted { $0.sortOrder < $1.sortOrder }
+        guard let sourceIndex = sortedFolders.firstIndex(where: { $0.id == draggedFolderId }),
+              let targetIndex = sortedFolders.firstIndex(where: { $0.id == targetFolderId }),
+              sourceIndex != targetIndex else {
+            return false
+        }
+
+        var reorderedFolders = sortedFolders
+        let draggedFolder = reorderedFolders.remove(at: sourceIndex)
+        let destinationIndex = targetIndex
+        reorderedFolders.insert(draggedFolder, at: destinationIndex)
+
+        withAnimation(.default) {
+            for (index, folder) in reorderedFolders.enumerated() {
+                folder.sortOrder = index
+            }
+        }
+
+        return true
     }
 }
