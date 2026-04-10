@@ -1,12 +1,13 @@
 import AppKit
 import SwiftUI
 
+@MainActor
 class TeleprompterWindowController {
 
     private(set) var panel: NSPanel?
 
     /// Create and show the teleprompter panel positioned over the notch.
-    func setup() {
+    func setup(scrollEngine: ScrollEngine) {
         let panelWidth = Constants.defaultOverlayWidth
         let panelHeight = Constants.defaultOverlayHeight
 
@@ -34,12 +35,12 @@ class TeleprompterWindowController {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
 
         // Transparent / no chrome
-        panel.backgroundColor = NSColor.white.withAlphaComponent(Constants.defaultOpacity)
+        panel.backgroundColor = NSColor.white.withAlphaComponent(CGFloat(Constants.defaultOpacity))
         panel.isOpaque = false
         panel.hasShadow = false
 
         // Host the SwiftUI overlay inside the panel
-        let hostingView = NSHostingView(rootView: TeleprompterOverlay())
+        let hostingView = NSHostingView(rootView: TeleprompterOverlay().environment(scrollEngine))
         panel.contentView = hostingView
 
         // Position over the notch

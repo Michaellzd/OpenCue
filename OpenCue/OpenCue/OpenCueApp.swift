@@ -8,6 +8,7 @@ struct OpenCueApp: App {
     var body: some Scene {
         WindowGroup {
             MainContentView()
+                .environment(appDelegate.scrollEngine)
                 .frame(minWidth: 600, minHeight: 400)
         }
         .defaultSize(width: 800, height: 550)
@@ -15,10 +16,12 @@ struct OpenCueApp: App {
     }
 }
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
+    let scrollEngine = ScrollEngine()
     private let teleprompterController = TeleprompterWindowController()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        teleprompterController.setup()
+        teleprompterController.setup(scrollEngine: scrollEngine)
     }
 }

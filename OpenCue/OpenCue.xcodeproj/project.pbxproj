@@ -18,6 +18,8 @@
 		AA000009 /* MainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000009 /* MainContentView.swift */; };
 		AA000010 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000010 /* SidebarView.swift */; };
 		AA000011 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000011 /* EditorView.swift */; };
+		AA000012 /* ScrollEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000012 /* ScrollEngine.swift */; };
+		AA000013 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000013 /* CountdownView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +35,8 @@
 		AB000009 /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
 		AB000010 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		AB000011 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
+		AB000012 /* ScrollEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollEngine.swift; sourceTree = "<group>"; };
+		AB000013 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +85,7 @@
 			children = (
 				AB000004 /* TeleprompterWindow.swift */,
 				AB000005 /* TeleprompterOverlay.swift */,
+				AB000013 /* CountdownView.swift */,
 			);
 			path = Teleprompter;
 			sourceTree = "<group>";
@@ -89,6 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				AB000003 /* NotchDetector.swift */,
+				AB000012 /* ScrollEngine.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -215,6 +221,8 @@
 				AA000009 /* MainContentView.swift in Sources */,
 				AA000010 /* SidebarView.swift in Sources */,
 				AA000011 /* EditorView.swift in Sources */,
+				AA000012 /* ScrollEngine.swift in Sources */,
+				AA000013 /* CountdownView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
