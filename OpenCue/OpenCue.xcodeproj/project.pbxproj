@@ -18,6 +18,10 @@
 		AA000009 /* MainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000009 /* MainContentView.swift */; };
 		AA000010 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000010 /* SidebarView.swift */; };
 		AA000011 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000011 /* EditorView.swift */; };
+		AA000012 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000012 /* AppSettings.swift */; };
+		AA000013 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000013 /* SettingsView.swift */; };
+		AA000014 /* VisualTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000014 /* VisualTab.swift */; };
+		AA000015 /* GeneralTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB000015 /* GeneralTab.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +37,10 @@
 		AB000009 /* MainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainContentView.swift; sourceTree = "<group>"; };
 		AB000010 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		AB000011 /* EditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
+		AB000012 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		AB000013 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AB000014 /* VisualTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualTab.swift; sourceTree = "<group>"; };
+		AB000015 /* GeneralTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralTab.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +80,7 @@
 			children = (
 				AE000004 /* Teleprompter */,
 				AE000011 /* MainWindow */,
+				AE000013 /* Settings */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -127,11 +136,22 @@
 			path = MainWindow;
 			sourceTree = "<group>";
 		};
+		AE000013 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				AB000013 /* SettingsView.swift */,
+				AB000014 /* VisualTab.swift */,
+				AB000015 /* GeneralTab.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
 		AE000012 /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				AB000007 /* Folder.swift */,
 				AB000008 /* Note.swift */,
+				AB000012 /* AppSettings.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -215,6 +235,10 @@
 				AA000009 /* MainContentView.swift in Sources */,
 				AA000010 /* SidebarView.swift in Sources */,
 				AA000011 /* EditorView.swift in Sources */,
+				AA000012 /* AppSettings.swift in Sources */,
+				AA000013 /* SettingsView.swift in Sources */,
+				AA000014 /* VisualTab.swift in Sources */,
+				AA000015 /* GeneralTab.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,14 +1,17 @@
 import AppKit
 import SwiftUI
 
-class TeleprompterWindowController {
-
+@MainActor
+final class TeleprompterWindowController: NSObject {
     private(set) var panel: NSPanel?
+    private weak var settings: AppSettings?
 
     /// Create and show the teleprompter panel positioned over the notch.
-    func setup() {
-        let panelWidth = Constants.defaultOverlayWidth
-        let panelHeight = Constants.defaultOverlayHeight
+    func setup(with settings: AppSettings) {
+        self.settings = settings
+
+        let panelWidth = settings.overlayWidth
+        let panelHeight = settings.overlayHeight
 
         let panel = NSPanel(
             contentRect: NSRect(x: 0, y: 0, width: panelWidth, height: panelHeight),
@@ -34,12 +37,12 @@ class TeleprompterWindowController {
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
 
         // Transparent / no chrome
-        panel.backgroundColor = NSColor.white.withAlphaComponent(Constants.defaultOpacity)
+        panel.backgroundColor = NSColor.white.withAlphaComponent(settings.opacity)
         panel.isOpaque = false
         panel.hasShadow = false
 
         // Host the SwiftUI overlay inside the panel
-        let hostingView = NSHostingView(rootView: TeleprompterOverlay())
+        let hostingView = NSHostingView(rootView: TeleprompterOverlay().environment(settings))
         panel.contentView = hostingView
 
         // Position over the notch
@@ -47,6 +50,7 @@ class TeleprompterWindowController {
 
         panel.orderFrontRegardless()
         self.panel = panel
+        observeSettings()
     }
 
     /// Position the panel centered on the notch, extending downward.
@@ -65,5 +69,53 @@ class TeleprompterWindowController {
                 panel.setFrameOrigin(NSPoint(x: x, y: y))
             }
         }
+    }
+
+    private func observeSettings() {
+        NotificationCenter.default.removeObserver(self, name: .appSettingsDidChange, object: nil)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleSettingsDidChange(_:)),
+            name: .appSettingsDidChange,
+            object: settings
+        )
+    }
+
+    @objc
+    private func handleSettingsDidChange(_ notification: Notification) {
+        applySettings()
+    }
+
+    private func applySettings() {
+        guard let panel, let settings else { return }
+
+        panel.backgroundColor = NSColor.white.withAlphaComponent(settings.opacity)
+
+        let newFrame = frameForPanel(
+            width: settings.overlayWidth,
+            height: settings.overlayHeight
+        )
+        panel.setFrame(newFrame, display: true, animate: false)
+    }
+
+    private func frameForPanel(width: CGFloat, height: CGFloat) -> NSRect {
+        if let notch = NotchDetector.detect() {
+            let x = notch.x + (notch.width - width) / 2
+            let y = notch.y - height
+            return NSRect(x: x, y: y, width: width, height: height)
+        }
+
+        if let screen = NSScreen.main {
+            let x = screen.frame.midX - width / 2
+            let y = screen.frame.maxY - screen.safeAreaInsets.top - height
+            return NSRect(x: x, y: y, width: width, height: height)
+        }
+
+        return NSRect(x: 0, y: 0, width: width, height: height)
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
 }

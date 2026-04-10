@@ -3,10 +3,12 @@ import SwiftData
 
 struct MainContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(AppSettings.self) private var settings
     @Query(sort: \Folder.sortOrder) private var folders: [Folder]
 
     @State private var selectedNoteId: UUID?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    @State private var showSettings = false
 
     @AppStorage("opencue.lastOpenedNoteId") private var lastOpenedNoteId: String?
 
@@ -33,7 +35,7 @@ struct MainContentView: View {
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 Button(action: {
-                    // Agent D will wire the settings sheet
+                    showSettings = true
                 }) {
                     Image(systemName: "gearshape")
                 }
@@ -46,6 +48,10 @@ struct MainContentView: View {
                 }
                 .help("Play")
             }
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .environment(settings)
         }
     }
 

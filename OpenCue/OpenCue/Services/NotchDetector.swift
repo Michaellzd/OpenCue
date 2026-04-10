@@ -20,8 +20,6 @@ class NotchDetector {
         guard topInset > 0 else { return nil }
 
         let frame = screen.frame
-        let visibleFrame = screen.visibleFrame
-
         // auxiliaryTopLeftArea / auxiliaryTopRightArea (macOS 14+)
         // The notch is the gap between these two rects.
         if let leftArea = screen.auxiliaryTopLeftArea,
