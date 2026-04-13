@@ -1,19 +1,22 @@
 # OpenCue Local Build and Use
 
-This guide is for the current goal: build OpenCue from source, package it locally, and start using it on your own Mac.
+This is the current practical path for OpenCue: build from source, run it on your own Mac, and test the workflow end to end.
 
-It is **not** a notarized Apple distribution flow. For self-use and open-source development, you do not need Developer ID signing, notarization, or a paid Apple Developer account.
+It is not the full Apple distribution path. You do not need Developer ID signing or notarization for local self-use.
 
 ## Requirements
 
-- A MacBook with a notch
 - macOS 14+
-- Xcode 15+ installed in `/Applications/Xcode.app`
-- Command line tools pointed at full Xcode:
+- A MacBook with a built-in notch
+- Xcode 15+ installed at `/Applications/Xcode.app`
+
+If `xcode-select` still points at Command Line Tools, switch it:
 
 ```bash
 sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
 ```
+
+You can also leave `xcode-select` alone and run the build script with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`.
 
 ## Fastest Path
 
@@ -29,11 +32,7 @@ That produces:
 build/local/DerivedData/Build/Products/Release/OpenCue.app
 ```
 
-You can then either:
-
-- open that `.app` directly
-- drag it into `/Applications`
-- package it into a simple local DMG:
+Optional local packaging:
 
 ```bash
 ./scripts/make-local-dmg.sh
@@ -48,7 +47,7 @@ build/OpenCue-local.dmg
 ## First Launch
 
 1. Open `OpenCue.app`.
-2. If macOS asks for permission related to keyboard monitoring or accessibility, approve it.
+2. If macOS asks for accessibility-related permission for keyboard monitoring, approve it.
 3. If global hotkeys do not work, go to:
 
 ```text
@@ -62,17 +61,19 @@ Add either:
 
 ## How To Test It
 
-Use this checklist on a notch Mac:
+Use a real notch Mac and verify:
 
 1. Launch the app.
 2. Confirm the main window opens.
-3. Confirm the overlay appears in the notch area.
+3. Confirm the teleprompter is hidden before playback.
 4. Create a folder and a note.
 5. Paste a long script into the note.
-6. Open Settings and change font size, width, height, and opacity.
-7. Confirm the overlay updates live.
-8. Press the play button and confirm countdown + scrolling.
-9. Test shortcuts:
+6. Confirm the title field and body editor both work immediately.
+7. Open Settings and change font size, width, height, opacity, alignment, and speed.
+8. Confirm the overlay updates live.
+9. Press `Play` and confirm scrolling starts immediately.
+10. Confirm the overlay pause/resume and close controls work.
+11. Test shortcuts:
 
 ```text
 Cmd+Shift+P   toggle play/pause
@@ -81,16 +82,28 @@ Cmd+Down      slow down
 Cmd+R         reset
 ```
 
-10. Record the screen with QuickTime and confirm the overlay is not captured.
+## Capture Testing
+
+The panel currently uses `NSWindow.sharingType = .none`, but you should treat capture invisibility as something to verify, not assume.
+
+Test with the exact tools you care about, for example:
+
+- QuickTime
+- Zoom
+- Google Meet
+- OBS
+- Loom
 
 ## Non-Notch Macs
 
-The current app is built for notch Macs. On a non-notch Mac, the app shows a "Notch Required" alert and skips the overlay if you continue anyway.
+The app is built for notch Macs. On a non-notch Mac, it shows a "Notch Required" alert and lets you continue without the teleprompter overlay.
 
 ## Open-Source vs Notarized Release
 
-For open-source use, this local flow is enough.
+For source-first use and local development, this flow is enough.
 
-You only need the full signing/notarization pipeline if you want to distribute a binary to other people in a way that works cleanly with Gatekeeper.
+If you want a polished public binary release, the missing work is still:
 
-That later step is still not finished in this repo.
+- Developer ID signing
+- notarization
+- public DMG distribution flow

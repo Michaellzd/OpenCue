@@ -26,11 +26,14 @@ struct OpenCueApp: App {
     }
 
     private func showAboutPanel() {
+        let marketingVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0.0"
+        let buildVersion = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "1"
+
         NSApp.orderFrontStandardAboutPanel(
             options: [
                 .applicationName: "OpenCue",
-                .applicationVersion: "1.0.0",
-                .version: "1.0.0"
+                .applicationVersion: marketingVersion,
+                .version: buildVersion
             ]
         )
     }
