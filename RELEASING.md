@@ -11,6 +11,7 @@ Today OpenCue supports a source-first release flow:
 - update version numbers
 - build the app locally
 - package a polished local DMG
+- prepare versioned release assets
 - test the installed app from `/Applications`
 - tag the release in git
 
@@ -70,20 +71,33 @@ The About panel reads the version from the app bundle now, so you do not need to
 ./scripts/make-local-dmg.sh
 ```
 
-8. Test the actual installed app:
+8. Prepare the GitHub release assets:
+
+```bash
+./scripts/prepare-release-assets.sh
+```
+
+This produces:
+
+```text
+build/OpenCue-<version>.dmg
+build/OpenCue.dmg
+```
+
+9. Test the actual installed app:
    - open the DMG
    - drag `OpenCue.app` into `Applications`
    - eject the DMG
    - launch `/Applications/OpenCue.app`
-9. Validate the key product flows:
+10. Validate the key product flows:
    - note creation and editing
    - play / pause / reset
    - scroll speed behavior
    - overlay controls
    - hotkeys
    - capture behavior with the specific recording tools you care about
-10. Commit the version bump and release notes changes.
-11. Create a git tag:
+11. Commit the version bump and release notes changes.
+12. Create a git tag:
 
 ```bash
 git tag v1.0.0
@@ -91,6 +105,24 @@ git push origin v1.0.0
 ```
 
 Update the tag to the real release version.
+
+13. Create the GitHub Release and upload the DMG assets.
+
+If `gh` is authenticated, you can do:
+
+```bash
+gh release create v1.0.0 \
+  build/OpenCue-1.0.0.dmg \
+  build/OpenCue.dmg \
+  --title "OpenCue v1.0.0" \
+  --notes "See README.md for current product details and install notes."
+```
+
+If `gh auth status` shows an invalid token, re-authenticate first:
+
+```bash
+gh auth login -h github.com
+```
 
 ## Clean Install Test
 
@@ -119,6 +151,13 @@ Local DMG output:
 
 ```text
 build/OpenCue-local.dmg
+```
+
+GitHub release assets:
+
+```text
+build/OpenCue-<version>.dmg
+build/OpenCue.dmg
 ```
 
 ## Agent Rules

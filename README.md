@@ -12,6 +12,13 @@ The current goal for this repo is straightforward: keep the project easy to buil
 - Includes a local `.app` and simple `.dmg` workflow for self-use
 - Does not yet include a finished Developer ID signing + notarization pipeline
 
+## Download
+
+- Latest release page: [github.com/Michaellzd/OpenCue/releases/latest](https://github.com/Michaellzd/OpenCue/releases/latest)
+- Direct latest DMG link: [github.com/Michaellzd/OpenCue/releases/latest/download/OpenCue.dmg](https://github.com/Michaellzd/OpenCue/releases/latest/download/OpenCue.dmg)
+
+If the direct download is missing, use the latest release page instead.
+
 ## What The App Does
 
 - Organizes scripts into folders and notes
@@ -59,6 +66,12 @@ To package a simple local DMG:
 
 ```bash
 ./scripts/make-local-dmg.sh
+```
+
+To prepare versioned GitHub release assets from that DMG:
+
+```bash
+./scripts/prepare-release-assets.sh
 ```
 
 ## Use It
