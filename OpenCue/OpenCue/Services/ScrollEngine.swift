@@ -4,7 +4,6 @@ import Observation
 
 enum ScrollState: Equatable {
     case idle
-    case countdown
     case playing
     case paused
     case finished
@@ -12,14 +11,16 @@ enum ScrollState: Equatable {
 
 @Observable
 final class ScrollEngine {
-    var state: ScrollState = .idle
+    var state: ScrollState = .idle {
+        didSet {
+            guard oldValue != state else { return }
+            NotificationCenter.default.post(name: .scrollEngineStateDidChange, object: self)
+        }
+    }
     var offset: CGFloat = 0
-    var currentCountdown: Int = Constants.defaultCountdownDuration
     var hasSelectedNote: Bool = false
 
     var speed: Double = Constants.defaultScrollSpeed
-    var countdownEnabled: Bool = true
-    var countdownDuration: Int = Constants.defaultCountdownDuration
 
     var textContent: String = ""
     var textHeight: CGFloat = 0
@@ -29,11 +30,15 @@ final class ScrollEngine {
     private var scrollTimer: Timer?
 
     @ObservationIgnored
-    private var countdownTimer: Timer?
-
-    @ObservationIgnored
     private var maximumOffset: CGFloat {
         max(textHeight - viewportHeight, 0)
+    }
+
+    @ObservationIgnored
+    private var pointsPerSecond: CGFloat {
+        let normalized = min(max((speed - 1) / 9, 0), 1)
+        let eased = pow(normalized, 1.85)
+        return 1.5 + CGFloat(eased * 42)
     }
 
     var hasPlayableText: Bool {
@@ -42,14 +47,13 @@ final class ScrollEngine {
 
     deinit {
         scrollTimer?.invalidate()
-        countdownTimer?.invalidate()
     }
 
     func play() {
         guard hasPlayableText else { return }
 
         switch state {
-        case .playing, .countdown:
+        case .playing:
             return
         case .finished:
             reset()
@@ -57,11 +61,7 @@ final class ScrollEngine {
             break
         }
 
-        if countdownEnabled && state == .idle {
-            startCountdown()
-        } else {
-            startScrolling()
-        }
+        startScrolling()
     }
 
     func pause() {
@@ -73,11 +73,8 @@ final class ScrollEngine {
 
     func reset() {
         scrollTimer?.invalidate()
-        countdownTimer?.invalidate()
         scrollTimer = nil
-        countdownTimer = nil
         offset = 0
-        currentCountdown = max(countdownDuration, 1)
         state = .idle
     }
 
@@ -94,19 +91,11 @@ final class ScrollEngine {
             pause()
         case .paused:
             play()
-        case .countdown:
-            reset()
         }
     }
 
-    func updateConfiguration(speed: Double, countdownEnabled: Bool, countdownDuration: Int) {
+    func updateConfiguration(speed: Double) {
         setSpeed(speed)
-        self.countdownEnabled = countdownEnabled
-        self.countdownDuration = max(countdownDuration, 1)
-
-        if state == .idle {
-            currentCountdown = self.countdownDuration
-        }
     }
 
     func clampOffsetToContent() {
@@ -116,36 +105,26 @@ final class ScrollEngine {
         }
     }
 
-    private func startCountdown() {
-        scrollTimer?.invalidate()
-        countdownTimer?.invalidate()
+    private func startScrolling() {
+        state = .playing
+        beginScrollingWhenReady()
+    }
 
-        currentCountdown = max(countdownDuration, 1)
-        state = .countdown
+    private func beginScrollingWhenReady(retryCount: Int = 0) {
+        guard state == .playing else { return }
 
-        let timer = Timer(timeInterval: 1, repeats: true) { [weak self] timer in
-            guard let self else {
-                timer.invalidate()
+        guard textHeight > 0, viewportHeight > 0 else {
+            guard retryCount < 20 else {
+                offset = 0
+                state = .finished
                 return
             }
 
-            if self.currentCountdown > 1 {
-                self.currentCountdown -= 1
-            } else {
-                timer.invalidate()
-                self.countdownTimer = nil
-                self.currentCountdown = 0
-                self.startScrolling()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [weak self] in
+                self?.beginScrollingWhenReady(retryCount: retryCount + 1)
             }
+            return
         }
-
-        countdownTimer = timer
-        RunLoop.main.add(timer, forMode: .common)
-    }
-
-    private func startScrolling() {
-        countdownTimer?.invalidate()
-        countdownTimer = nil
 
         let targetOffset = maximumOffset
         guard targetOffset > 0 else {
@@ -154,15 +133,13 @@ final class ScrollEngine {
             return
         }
 
-        state = .playing
-
         let timer = Timer(timeInterval: 1.0 / 60.0, repeats: true) { [weak self] timer in
             guard let self else {
                 timer.invalidate()
                 return
             }
 
-            self.offset += CGFloat(self.speed * 0.5)
+            self.offset += self.pointsPerSecond / 60.0
             self.checkFinished()
         }
 
@@ -187,4 +164,8 @@ final class ScrollEngine {
         scrollTimer = nil
         state = .finished
     }
+}
+
+extension Notification.Name {
+    static let scrollEngineStateDidChange = Notification.Name("scrollEngineStateDidChange")
 }

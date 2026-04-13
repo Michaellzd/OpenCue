@@ -9,33 +9,22 @@ struct GeneralTab: View {
                 VStack(alignment: .leading, spacing: 12) {
                     sliderRow(
                         title: "Scroll Speed",
-                        valueText: "\(Int(settings.scrollSpeed))"
+                        valueText: scrollSpeedValueText
                     ) {
-                        Slider(value: scrollSpeedBinding, in: 1...10, step: 1)
+                        Slider(value: scrollSpeedBinding, in: 1...10, step: 0.25)
+                        HStack {
+                            Text("Very Slow")
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Text("Fast")
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.caption)
                     }
                 }
                 .padding(8)
             } label: {
                 Label("Scroll", systemImage: "speedometer")
-                    .font(.headline)
-            }
-
-            GroupBox {
-                VStack(alignment: .leading, spacing: 12) {
-                    Toggle("Countdown Before Start", isOn: countdownEnabledBinding)
-
-                    sliderRow(
-                        title: "Countdown Duration",
-                        valueText: "\(settings.countdownDuration)s"
-                    ) {
-                        Slider(value: countdownDurationBinding, in: 1...10, step: 1)
-                            .disabled(!settings.countdownEnabled)
-                    }
-                    .opacity(settings.countdownEnabled ? 1 : 0.55)
-                }
-                .padding(8)
-            } label: {
-                Label("Countdown", systemImage: "timer")
                     .font(.headline)
             }
         }
@@ -48,18 +37,21 @@ struct GeneralTab: View {
         )
     }
 
-    private var countdownEnabledBinding: Binding<Bool> {
-        Binding(
-            get: { settings.countdownEnabled },
-            set: { settings.countdownEnabled = $0 }
-        )
+    private var scrollSpeedValueText: String {
+        "\(scrollSpeedDescriptor) · \(String(format: "%.2f", settings.scrollSpeed))"
     }
 
-    private var countdownDurationBinding: Binding<Double> {
-        Binding(
-            get: { Double(settings.countdownDuration) },
-            set: { settings.countdownDuration = Int($0) }
-        )
+    private var scrollSpeedDescriptor: String {
+        switch settings.scrollSpeed {
+        case ..<2.5:
+            return "Very Slow"
+        case ..<4.5:
+            return "Slow"
+        case ..<7.0:
+            return "Normal"
+        default:
+            return "Fast"
+        }
     }
 
     @ViewBuilder

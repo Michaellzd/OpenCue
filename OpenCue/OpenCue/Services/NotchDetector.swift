@@ -1,11 +1,16 @@
 import AppKit
 
 struct NotchGeometry {
-    let x: CGFloat
-    let y: CGFloat
-    let width: CGFloat
-    let screenWidth: CGFloat
+    let rect: NSRect
     let screenFrame: NSRect
+
+    var centerX: CGFloat {
+        rect.midX
+    }
+
+    var bottomY: CGFloat {
+        rect.minY
+    }
 }
 
 class NotchDetector {
@@ -24,30 +29,29 @@ class NotchDetector {
         // The notch is the gap between these two rects.
         if let leftArea = screen.auxiliaryTopLeftArea,
            let rightArea = screen.auxiliaryTopRightArea {
-            let notchX = leftArea.maxX
-            let notchWidth = rightArea.minX - leftArea.maxX
-            // Y is the top of the visible frame (just below the menu bar / notch)
-            let notchY = frame.maxY - topInset
+            let notchRect = NSRect(
+                x: leftArea.maxX,
+                y: min(leftArea.minY, rightArea.minY),
+                width: max(rightArea.minX - leftArea.maxX, 0),
+                height: max(leftArea.height, rightArea.height)
+            )
             return NotchGeometry(
-                x: notchX,
-                y: notchY,
-                width: notchWidth,
-                screenWidth: frame.width,
+                rect: notchRect,
                 screenFrame: frame
             )
         }
 
         // Fallback: estimate notch dimensions from known hardware
-        // All current notch MacBooks have roughly a 180-200px notch at Retina scale.
-        let estimatedNotchWidth: CGFloat = 190
-        let notchX = frame.midX - estimatedNotchWidth / 2
-        let notchY = frame.maxY - topInset
+        let estimatedNotchWidth = min(max(frame.width * 0.12, 180), 220)
+        let notchRect = NSRect(
+            x: frame.midX - estimatedNotchWidth / 2,
+            y: frame.maxY - topInset,
+            width: estimatedNotchWidth,
+            height: topInset
+        )
 
         return NotchGeometry(
-            x: notchX,
-            y: notchY,
-            width: estimatedNotchWidth,
-            screenWidth: frame.width,
+            rect: notchRect,
             screenFrame: frame
         )
     }

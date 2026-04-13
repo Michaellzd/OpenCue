@@ -14,10 +14,11 @@ if ! command -v xcodebuild >/dev/null 2>&1; then
   exit 1
 fi
 
-DEVELOPER_DIR_PATH="$(xcode-select -p)"
+DEVELOPER_DIR_PATH="${DEVELOPER_DIR:-$(xcode-select -p)}"
 if [[ "$DEVELOPER_DIR_PATH" == "/Library/Developer/CommandLineTools" ]]; then
   echo "error: full Xcode is not active." >&2
   echo "Run: sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer" >&2
+  echo "Or run this script with DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer" >&2
   exit 1
 fi
 

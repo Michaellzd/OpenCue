@@ -5,6 +5,7 @@ struct MainContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(AppSettings.self) private var settings
     @Environment(ScrollEngine.self) private var scrollEngine
+    @Query(sort: \Folder.sortOrder) private var folders: [Folder]
 
     @State private var selectedNoteId: UUID?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
@@ -73,6 +74,14 @@ struct MainContentView: View {
             Text("Select or create a note")
                 .font(.title3)
                 .foregroundColor(.secondary)
+
+            if !folders.isEmpty {
+                Button("New Note") {
+                    createNoteFromEmptyState()
+                }
+                .buttonStyle(.borderedProminent)
+                .padding(.top, 4)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -127,5 +136,23 @@ struct MainContentView: View {
         guard scrollEngine.state != .playing else { return }
         scrollEngine.textContent = body
         scrollEngine.clampOffsetToContent()
+    }
+
+    private func createNoteFromEmptyState() {
+        guard let folder = preferredFolderForNewNote() else { return }
+
+        let note = Note(title: "Untitled", folder: folder)
+        modelContext.insert(note)
+        selectedNoteId = note.id
+    }
+
+    private func preferredFolderForNewNote() -> Folder? {
+        if let selectedNoteId,
+           let selectedNote = findNote(by: selectedNoteId),
+           let folder = selectedNote.folder {
+            return folder
+        }
+
+        return folders.first
     }
 }

@@ -45,14 +45,6 @@ final class AppSettings {
         didSet { store(scrollSpeed, key: Keys.scrollSpeed, oldValue: oldValue) }
     }
 
-    var countdownEnabled: Bool {
-        didSet { store(countdownEnabled, key: Keys.countdownEnabled, oldValue: oldValue) }
-    }
-
-    var countdownDuration: Int {
-        didSet { store(countdownDuration, key: Keys.countdownDuration, oldValue: oldValue) }
-    }
-
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
         fontSize = userDefaults.object(forKey: Keys.fontSize) as? Double ?? Double(Constants.defaultFontSize)
@@ -64,8 +56,6 @@ final class AppSettings {
         collapseEmptyLines = userDefaults.object(forKey: Keys.collapseEmptyLines) as? Bool ?? false
         textColorData = userDefaults.data(forKey: Keys.textColor) ?? Self.archivedColor(NSColor.black)
         scrollSpeed = userDefaults.object(forKey: Keys.scrollSpeed) as? Double ?? Constants.defaultScrollSpeed
-        countdownEnabled = userDefaults.object(forKey: Keys.countdownEnabled) as? Bool ?? true
-        countdownDuration = userDefaults.object(forKey: Keys.countdownDuration) as? Int ?? Constants.defaultCountdownDuration
     }
 
     var textColor: Color {
@@ -191,8 +181,6 @@ extension AppSettings {
         static let richTextEnabled = "opencue.richTextEnabled"
         static let collapseEmptyLines = "opencue.collapseEmptyLines"
         static let scrollSpeed = "opencue.scrollSpeed"
-        static let countdownEnabled = "opencue.countdownEnabled"
-        static let countdownDuration = "opencue.countdownDuration"
     }
 }
 

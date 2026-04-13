@@ -5,10 +5,12 @@ import SwiftUI
 final class TeleprompterWindowController: NSObject {
     private(set) var panel: NSPanel?
     private weak var settings: AppSettings?
+    private weak var scrollEngine: ScrollEngine?
 
-    /// Create and show the teleprompter panel positioned over the notch.
+    /// Create the teleprompter panel positioned over the notch.
     func setup(scrollEngine: ScrollEngine, settings: AppSettings) {
         self.settings = settings
+        self.scrollEngine = scrollEngine
 
         let panelWidth = settings.overlayWidthCGFloat
         let panelHeight = settings.overlayHeightCGFloat
@@ -30,7 +32,7 @@ final class TeleprompterWindowController: NSObject {
         panel.isMovable = false
         panel.hidesOnDeactivate = false
 
-        // Click-through — mouse events pass to windows behind it
+        // Mouse interaction is enabled only while the teleprompter is visible.
         panel.ignoresMouseEvents = true
 
         // Don't appear in Mission Control, Dock, or Cmd+Tab
@@ -52,27 +54,16 @@ final class TeleprompterWindowController: NSObject {
         // Position over the notch
         positionPanel(panel, width: panelWidth, height: panelHeight)
 
-        panel.orderFrontRegardless()
+        panel.orderOut(nil)
         self.panel = panel
         observeSettings()
+        observeScrollEngineState()
+        applyVisibility(for: scrollEngine.state)
     }
 
     /// Position the panel centered on the notch, extending downward.
     private func positionPanel(_ panel: NSPanel, width: CGFloat, height: CGFloat) {
-        if let notch = NotchDetector.detect() {
-            // Center horizontally on the notch
-            let x = notch.x + (notch.width - width) / 2
-            // Place top edge at the bottom of the notch (panel extends downward)
-            let y = notch.y - height
-            panel.setFrameOrigin(NSPoint(x: x, y: y))
-        } else {
-            // No notch found — place at top-center of the main screen as fallback
-            if let screen = NSScreen.main {
-                let x = screen.frame.midX - width / 2
-                let y = screen.frame.maxY - screen.safeAreaInsets.top - height
-                panel.setFrameOrigin(NSPoint(x: x, y: y))
-            }
-        }
+        panel.setFrame(frameForPanel(width: width, height: height), display: false)
     }
 
     private func observeSettings() {
@@ -86,9 +77,26 @@ final class TeleprompterWindowController: NSObject {
         )
     }
 
+    private func observeScrollEngineState() {
+        NotificationCenter.default.removeObserver(self, name: .scrollEngineStateDidChange, object: nil)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleScrollEngineStateDidChange(_:)),
+            name: .scrollEngineStateDidChange,
+            object: scrollEngine
+        )
+    }
+
     @objc
     private func handleSettingsDidChange(_ notification: Notification) {
         applySettings()
+    }
+
+    @objc
+    private func handleScrollEngineStateDidChange(_ notification: Notification) {
+        guard let scrollEngine else { return }
+        applyVisibility(for: scrollEngine.state)
     }
 
     private func applySettings() {
@@ -101,10 +109,32 @@ final class TeleprompterWindowController: NSObject {
         panel.setFrame(newFrame, display: true, animate: false)
     }
 
+    private func applyVisibility(for state: ScrollState) {
+        guard let panel else { return }
+
+        if shouldShowPanel(for: state) {
+            applySettings()
+            panel.ignoresMouseEvents = false
+            panel.orderFrontRegardless()
+        } else {
+            panel.ignoresMouseEvents = true
+            panel.orderOut(nil)
+        }
+    }
+
+    private func shouldShowPanel(for state: ScrollState) -> Bool {
+        switch state {
+        case .idle:
+            return false
+        case .playing, .paused, .finished:
+            return true
+        }
+    }
+
     private func frameForPanel(width: CGFloat, height: CGFloat) -> NSRect {
         if let notch = NotchDetector.detect() {
-            let x = notch.x + (notch.width - width) / 2
-            let y = notch.y - height
+            let x = notch.centerX - width / 2
+            let y = notch.bottomY - height
             return NSRect(x: x, y: y, width: width, height: height)
         }
 

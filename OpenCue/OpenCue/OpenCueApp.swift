@@ -67,9 +67,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         switch key {
-        case AppSettings.Keys.scrollSpeed,
-             AppSettings.Keys.countdownEnabled,
-             AppSettings.Keys.countdownDuration:
+        case AppSettings.Keys.scrollSpeed:
             syncScrollEngineConfiguration()
         default:
             break
@@ -77,11 +75,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func syncScrollEngineConfiguration() {
-        scrollEngine.updateConfiguration(
-            speed: appSettings.scrollSpeed,
-            countdownEnabled: appSettings.countdownEnabled,
-            countdownDuration: appSettings.countdownDuration
-        )
+        scrollEngine.updateConfiguration(speed: appSettings.scrollSpeed)
     }
 
     private func shouldShowTeleprompterOverlay() -> Bool {

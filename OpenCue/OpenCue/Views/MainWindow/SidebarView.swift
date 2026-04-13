@@ -61,14 +61,28 @@ struct SidebarView: View {
 
             Divider()
 
-            Button(action: createFolder) {
-                Label("New Folder", systemImage: "plus")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
+            VStack(spacing: 0) {
+                Button(action: createNoteInPreferredFolder) {
+                    Label("New Note", systemImage: "square.and.pencil")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(.accentColor)
+                .disabled(folders.isEmpty)
+
+                Divider()
+
+                Button(action: createFolder) {
+                    Label("New Folder", systemImage: "plus")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(.accentColor)
             }
-            .buttonStyle(.plain)
-            .foregroundColor(.accentColor)
         }
         .confirmationDialog(
             "Delete Folder",
@@ -188,13 +202,34 @@ struct SidebarView: View {
         let folder = Folder(name: "New Folder", sortOrder: maxOrder + 1)
         modelContext.insert(folder)
         expandedFolders.insert(folder.id)
+        createNote(in: folder)
     }
 
     private func addNote(to folder: Folder) {
+        createNote(in: folder)
+    }
+
+    private func createNoteInPreferredFolder() {
+        guard let folder = preferredFolderForNewNote() else { return }
+        createNote(in: folder)
+    }
+
+    private func createNote(in folder: Folder) {
         let note = Note(title: "Untitled", folder: folder)
         modelContext.insert(note)
         selectedNoteId = note.id
         expandedFolders.insert(folder.id)
+    }
+
+    private func preferredFolderForNewNote() -> Folder? {
+        if let selectedNoteId,
+           let folder = folders.first(where: { folder in
+               folder.notes.contains(where: { $0.id == selectedNoteId })
+           }) {
+            return folder
+        }
+
+        return folders.first
     }
 
     private func startRenamingFolder(_ folder: Folder) {
