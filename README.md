@@ -1,128 +1,77 @@
 # OpenCue
 
-OpenCue is a native macOS teleprompter for notch MacBooks. It gives you a normal script editor in the main window and a separate floating teleprompter panel aligned to the built-in display notch.
+A macOS teleprompter that hides in your MacBook notch — invisible to screen recordings.
 
-The current goal for this repo is straightforward: keep the project easy to build from source, easy to test on a real Mac, and ready to publish as an open-source project.
+I built this for myself. English isn't my first language, and I run a [YouTube channel](https://www.youtube.com/@michaelhimself-ai) where I record talking-head videos. I needed a teleprompter that:
 
-## Current Status
+- sits right above the camera so I look natural
+- doesn't show up in recordings
+- lets me control scroll speed and pause mid-recording
 
-- Works as a local source build on macOS 14+ with Xcode 15+
-- Built for MacBooks with a built-in notch
-- Stores folders, notes, and user settings locally
-- Includes a local `.app` and simple `.dmg` workflow for self-use
-- Does not yet include a finished Developer ID signing + notarization pipeline
+Nothing I found did all three, so I made OpenCue.
+
+## How It Works
+
+Write your script in the editor. Hit play. Your text scrolls in a floating panel aligned to the MacBook notch — right where the camera is. The panel uses `NSWindow.sharingType = .none`, so most screen recording and video call tools won't capture it.
+
+**What you see on your screen (phone photo):**
+
+<p align="center">
+  <img src="img/phone-editor-with-overlay.jpg" width="45%" />
+  <img src="img/phone-overlay-scrolling.jpg" width="45%" />
+</p>
+
+**What gets recorded:** the notch area is empty — the teleprompter is invisible.
+
+> **Note:** Capture invisibility is best-effort. It works with QuickTime, Zoom, and most common tools, but test with your specific setup to be sure.
+
+## Screenshots
+
+| Editor | Visual Settings | Speed Control |
+|--------|----------------|---------------|
+| ![Editor](img/01.png) | ![Visual Settings](img/02.png) | ![Speed](img/03.png) |
+
+## Features
+
+- Teleprompter panel aligned to the MacBook notch
+- Invisible to most screen recordings and video calls
+- Adjustable scroll speed, font size, width, height, and opacity
+- Hover to pause, move away to resume
+- Keyboard shortcuts for play/pause, speed, and reset
+- Organize scripts into folders and notes
+- Native macOS app — no Electron, no web views
 
 ## Download
 
-- Latest release page: [github.com/Michaellzd/OpenCue/releases/latest](https://github.com/Michaellzd/OpenCue/releases/latest)
-- Direct latest DMG link: [github.com/Michaellzd/OpenCue/releases/latest/download/OpenCue.dmg](https://github.com/Michaellzd/OpenCue/releases/latest/download/OpenCue.dmg)
+**[Download the latest DMG](https://github.com/Michaellzd/OpenCue/releases/latest/download/OpenCue.dmg)**
 
-If the direct download is missing, use the latest release page instead.
+Or visit the [Releases page](https://github.com/Michaellzd/OpenCue/releases/latest).
 
-## What The App Does
+> The app is not notarized yet. On first launch, right-click the app and select Open, or go to System Settings → Privacy & Security to allow it.
 
-- Organizes scripts into folders and notes
-- Opens directly into a plain text editing workflow
-- Shows the teleprompter panel only during playback states
-- Supports live visual settings for width, height, opacity, font size, alignment, and text color
-- Supports adjustable scroll speed, pause/resume, reset, and keyboard shortcuts
+## Keyboard Shortcuts
 
-## Important Caveats
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+Shift+P` | Play / Pause |
 
-- OpenCue is notch-first. External monitors and non-notch Macs are not the target setup.
-- The teleprompter panel uses `NSWindow.sharingType = .none` as a best-effort capture-avoidance technique.
-- Do not market or document this as a universal guarantee that every screen recording or screen sharing tool will hide the panel.
-- If capture invisibility matters for your workflow, test it with the exact tools you use, such as QuickTime, Zoom, Meet, OBS, or Loom.
 
-## Build And Run
+## Build From Source
 
-Requirements:
-
-- macOS 14+
-- A MacBook with a built-in notch
-- Full Xcode installed at `/Applications/Xcode.app`
-
-Build a local Release app:
+Requires macOS 14+, a notch MacBook, and Xcode 15+.
 
 ```bash
 ./scripts/build-local-release.sh
 ```
 
-If `xcode-select` still points at Command Line Tools, either switch it:
-
-```bash
-sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
-```
-
-or run the script with `DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer`.
-
-The built app ends up at:
-
-```text
-build/local/DerivedData/Build/Products/Release/OpenCue.app
-```
-
-To package a simple local DMG:
+To package a DMG:
 
 ```bash
 ./scripts/make-local-dmg.sh
 ```
 
-To prepare versioned GitHub release assets from that DMG:
-
-```bash
-./scripts/prepare-release-assets.sh
-```
-
-## Use It
-
-1. Launch `OpenCue.app`.
-2. Create a folder if the sidebar is empty.
-3. Create or select a note.
-4. Paste or write your script.
-5. Adjust visual settings and scroll speed.
-6. Press `Play` to show the teleprompter and start scrolling immediately.
-
-Keyboard shortcuts:
-
-- `Cmd+Shift+P`: play / pause
-- `Cmd+Up`: increase speed
-- `Cmd+Down`: decrease speed
-- `Cmd+R`: reset to top
-
-## Testing Checklist
-
-Use a real notch Mac and verify:
-
-1. The main window opens normally.
-2. You can create folders and notes without using a context-menu-only flow.
-3. The editor accepts title and body text immediately.
-4. The teleprompter stays hidden until playback starts.
-5. A long note actually scrolls.
-6. The overlay pause/play button and close button both work.
-7. Settings update the overlay live.
-8. Your preferred recording or call tools do or do not capture the overlay as expected.
-
-## Repo Guide
-
-- [RELEASING.md](./RELEASING.md): version bump, packaging, and release checklist
-- [doc/local-build-and-use.md](./doc/local-build-and-use.md): current local build and test path
-- [doc/README.md](./doc/README.md): documentation index
-- [AGENTS.md](./AGENTS.md): repo guidance for coding agents
-- [CLAUDE.md](./CLAUDE.md): same project guidance for Claude-style tooling
+See [RELEASING.md](./RELEASING.md) for the full release workflow.
 
 ## License
 
-OpenCue is licensed under the [MIT License](./LICENSE).
-
-## About The Docs
-
-The planning docs under `doc/` are still useful, but some of them describe earlier design phases, including countdown-based playback and stronger capture-invisibility wording than we should use now.
-
-Treat these as the current source of truth:
-
-- this `README.md`
-- `RELEASING.md`
-- `doc/local-build-and-use.md`
-- `AGENTS.md`
-- `CLAUDE.md`
+[MIT](./LICENSE)
