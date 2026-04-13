@@ -19,12 +19,13 @@ Current branch truth matters more than older planning docs.
 ## Read First
 
 1. `README.md`
-2. `doc/local-build-and-use.md`
-3. `OpenCue/OpenCue/OpenCueApp.swift`
-4. `OpenCue/OpenCue/Services/ScrollEngine.swift`
-5. `OpenCue/OpenCue/Views/MainWindow/MainContentView.swift`
-6. `OpenCue/OpenCue/Views/Teleprompter/TeleprompterWindow.swift`
-7. `OpenCue/OpenCue/Views/Teleprompter/TeleprompterOverlay.swift`
+2. `RELEASING.md` if the task touches versions, packaging, or release work
+3. `doc/local-build-and-use.md`
+4. `OpenCue/OpenCue/OpenCueApp.swift`
+5. `OpenCue/OpenCue/Services/ScrollEngine.swift`
+6. `OpenCue/OpenCue/Views/MainWindow/MainContentView.swift`
+7. `OpenCue/OpenCue/Views/Teleprompter/TeleprompterWindow.swift`
+8. `OpenCue/OpenCue/Views/Teleprompter/TeleprompterOverlay.swift`
 
 Use `doc/prd.md`, `doc/architecture.md`, and `doc/agents/*.md` as historical planning material unless the live code still reflects them.
 
@@ -77,3 +78,4 @@ When validating UI changes, quit the running `OpenCue` app before reopening a re
 - Local source builds are the supported path today.
 - Full signing, notarization, and public DMG release automation are still incomplete.
 - When blocked on Apple credentials or release setup, document the blocker clearly instead of pretending the distribution path exists.
+- For all release work, use `RELEASING.md` as the process source of truth.

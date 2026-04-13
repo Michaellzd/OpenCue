@@ -21,12 +21,13 @@ Current branch truth matters more than older planning docs.
 Read these first:
 
 1. `README.md`
-2. `doc/local-build-and-use.md`
-3. `OpenCue/OpenCue/OpenCueApp.swift`
-4. `OpenCue/OpenCue/Services/ScrollEngine.swift`
-5. `OpenCue/OpenCue/Views/MainWindow/MainContentView.swift`
-6. `OpenCue/OpenCue/Views/Teleprompter/TeleprompterWindow.swift`
-7. `OpenCue/OpenCue/Views/Teleprompter/TeleprompterOverlay.swift`
+2. `RELEASING.md` if the task touches versions, packaging, or release work
+3. `doc/local-build-and-use.md`
+4. `OpenCue/OpenCue/OpenCueApp.swift`
+5. `OpenCue/OpenCue/Services/ScrollEngine.swift`
+6. `OpenCue/OpenCue/Views/MainWindow/MainContentView.swift`
+7. `OpenCue/OpenCue/Views/Teleprompter/TeleprompterWindow.swift`
+8. `OpenCue/OpenCue/Views/Teleprompter/TeleprompterOverlay.swift`
 
 Treat older planning docs in `doc/prd.md`, `doc/architecture.md`, and `doc/agents/*.md` as historical context unless the current code still matches them.
 
@@ -79,3 +80,4 @@ When testing UI changes, remember that reopening the same bundle ID can reactiva
 - The repo supports local self-use today.
 - Full Developer ID signing, notarization, and polished public distribution are still unfinished.
 - If you work on release engineering, document blockers precisely instead of hand-waving around them.
+- For all release work, use `RELEASING.md` as the process source of truth.

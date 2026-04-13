@@ -92,10 +92,15 @@ Use a real notch Mac and verify:
 
 ## Repo Guide
 
+- [RELEASING.md](./RELEASING.md): version bump, packaging, and release checklist
 - [doc/local-build-and-use.md](./doc/local-build-and-use.md): current local build and test path
 - [doc/README.md](./doc/README.md): documentation index
 - [AGENTS.md](./AGENTS.md): repo guidance for coding agents
 - [CLAUDE.md](./CLAUDE.md): same project guidance for Claude-style tooling
+
+## License
+
+OpenCue is licensed under the [MIT License](./LICENSE).
 
 ## About The Docs
 
@@ -104,6 +109,7 @@ The planning docs under `doc/` are still useful, but some of them describe earli
 Treat these as the current source of truth:
 
 - this `README.md`
+- `RELEASING.md`
 - `doc/local-build-and-use.md`
 - `AGENTS.md`
 - `CLAUDE.md`
